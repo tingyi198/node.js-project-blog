@@ -1,5 +1,9 @@
 <% extend('../layouts/dashboard-layout') %>
 
+<% if (article === undefined) {
+  var article = {};
+} %>
+
 <form
   action="/dashboard/article/create"
   method="POST"
@@ -9,10 +13,10 @@
 
 
     <label for="title">請輸入標題</label>
-    <input type="text" id="title" class="form-control" name="title" placeholder="標題" value="">
+    <input type="text" id="title" class="form-control" name="title" placeholder="標題" value="<%- article.title || '' %>">
     <hr>
     <textarea name="content" id="editor" class="form-control">
-
+      <%- article.content || '' %>
     </textarea>
     <script>
 			CKEDITOR.replace( 'content' );
@@ -28,7 +32,7 @@
           <div class="form-check">
             <label class="form-check-label">
               <input class="form-check-input" type="radio" name="category" required value="<%- key %>"
-
+                <% if(key === article.category) { %> checked <% } %>
                 >
               <%- categories[key].name %>
             </label>
@@ -41,11 +45,11 @@
       <h6 class="card-header">是否公開</h6>
       <div class="card-body">
         <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-          <label class="btn btn-outline-primary w-100 ">
-            <input type="radio" name="status" autocomplete="off" value="draft"  > 草稿
+          <label class="btn btn-outline-primary w-100 <% if (article.status==='draft') { %> active <% } %> ">
+            <input type="radio" name="status" autocomplete="off" value="draft" <% if (article.status==='draft') { %> checked <% } %> > 草稿
           </label>
-          <label class="btn btn-outline-primary w-100 ">
-            <input type="radio" name="status" autocomplete="off" value="public"  > 公開
+          <label class="btn btn-outline-primary w-100 <% if (article.status==='public') { %> active <% } %>" >
+            <input type="radio" name="status" autocomplete="off" value="public" <% if (article.status==='public') { %> checked <% } %> > 公開
           </label>
         </div>
       </div>

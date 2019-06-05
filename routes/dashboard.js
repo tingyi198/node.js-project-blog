@@ -17,6 +17,22 @@ router.get('/article/create', function (req, res, next) {
     });
   });
 });
+
+router.get('/article/:id', function (req, res, next) {
+  const id = req.param('id');
+  let categories = {};
+  categoriesRef.once('value').then(function (snapshot) {
+    categories = snapshot.val();
+    return articlesRef.child(id).once('value');
+  }).then(function (snapshot) {
+    const article = snapshot.val();
+    res.render('dashboard/article', {
+      categories,
+      article
+    });
+  });
+});
+
 router.post('/article/create', function (req, res) {
   const data = req.body;
   const articleRef = articlesRef.push();
@@ -25,7 +41,7 @@ router.post('/article/create', function (req, res) {
   data.update_time = updateTime;
   data.id = key;
   articleRef.set(data).then(function () {
-    res.redirect('/dashboard/article/create');
+    res.redirect(`/dashboard/article/${key}`);
   });
 });
 
