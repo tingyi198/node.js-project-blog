@@ -3,13 +3,30 @@ const router = express.Router();
 const firebaseAdminDb = require('../connections/firebase-admin');
 
 const categoriesRef = firebaseAdminDb.ref('categories');
+const articlesRef = firebaseAdminDb.ref('articles');
 
 router.get('/archives', function (req, res, next) {
   res.render('dashboard/archives');
 });
 
-router.get('/article', function (req, res, next) {
-  res.render('dashboard/article');
+router.get('/article/create', function (req, res, next) {
+  categoriesRef.once('value').then(function (snapshot) {
+    const categories = snapshot.val();
+    res.render('dashboard/article', {
+      categories
+    });
+  });
+});
+router.post('/article/create', function (req, res) {
+  const data = req.body;
+  const articleRef = articlesRef.push();
+  const key = articleRef.key;
+  const updateTime = Math.floor(Date.now() / 1000);
+  data.update_time = updateTime;
+  data.id = key;
+  articleRef.set(data).then(function () {
+    res.redirect('/dashboard/article/create');
+  });
 });
 
 router.get('/categories', function (req, res, next) {
