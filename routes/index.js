@@ -9,6 +9,7 @@ const articlesRef = firebaseAdminDb.ref('articles');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
+  let currentPage = req.query.page || 1;
   let categories = {};
   categoriesRef.once('value').then(function (snapshot) {
     categories = snapshot.val();
@@ -21,12 +22,38 @@ router.get('/', function (req, res, next) {
       }
     });
     articles.reverse();
-    console.log(articles);
+
+    // 分頁
+    const totalResult = articles.length;
+    const perpage = 2;
+    const pageTotal = Math.ceil(totalResult / perpage);
+    if (currentPage > pageTotal) {
+      currentPage = pageTotal;
+    }
+
+    const minItem = (currentPage * perpage) - perpage + 1;
+    const maxItem = (currentPage * perpage);
+    const data = [];
+    articles.forEach(function (item, i) {
+      let itemNum = i + 1;
+      if (itemNum >= minItem && itemNum <= maxItem) {
+        data.push(item);
+      }
+    });
+    const page = {
+      pageTotal,
+      currentPage,
+      hasPre: currentPage > 1,
+      hasNext: currentPage < pageTotal
+    };
+    // 分頁結束
+
     res.render('index', {
-      articles,
+      articles: data,
       categories,
       striptags,
       moment,
+      page
     });
   });
 });
@@ -40,7 +67,7 @@ router.get('/post/:id', function (req, res, next) {
   }).then(function (snapshot) {
     const article = snapshot.val();
     res.render('post', {
-      categories,
+      categories: data,
       article,
       moment,
     });
