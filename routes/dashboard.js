@@ -7,6 +7,7 @@ const striptags = require('striptags');
 const categoriesRef = firebaseAdminDb.ref('categories');
 const articlesRef = firebaseAdminDb.ref('articles');
 
+// 文章列表
 router.get('/archives', function (req, res, next) {
   let status = req.query.status || 'public';
   let categories = {};
@@ -31,6 +32,21 @@ router.get('/archives', function (req, res, next) {
   });
 });
 
+// 取得分類列表
+router.get('/categories', function (req, res, next) {
+  const messages = req.flash('info');
+  categoriesRef.once('value').then(function (snapshot) {
+    const categories = snapshot.val();
+    res.render('dashboard/categories', {
+      categories,
+      messages,
+      hasInfo: messages.length > 0
+    });
+  });
+});
+
+
+// 新建文章頁面
 router.get('/article/create', function (req, res, next) {
   categoriesRef.once('value').then(function (snapshot) {
     const categories = snapshot.val();
@@ -88,19 +104,6 @@ router.post('/article/delete/:id', function (req, res) {
   res.end();
 });
 
-// 取得分類列表
-router.get('/categories', function (req, res, next) {
-  const messages = req.flash('info');
-  categoriesRef.once('value').then(function (snapshot) {
-    const categories = snapshot.val();
-    res.render('dashboard/categories', {
-      categories,
-      messages,
-      hasInfo: messages.length > 0
-    });
-  });
-});
-
 router.post('/categories/create', function (req, res) {
   const data = req.body;
   var categoryRef = categoriesRef.push();
@@ -127,10 +130,6 @@ router.post('/categories/delete/:id', function (req, res) {
   categoriesRef.child(id).remove();
   req.flash('info', '欄位已刪除');
   res.redirect('/dashboard/categories');
-});
-
-router.get('/signup', function (req, res, next) {
-  res.render('dashboard/signup');
 });
 
 
