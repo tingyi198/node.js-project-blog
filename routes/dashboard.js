@@ -8,7 +8,7 @@ const categoriesRef = firebaseAdminDb.ref('categories');
 const articlesRef = firebaseAdminDb.ref('articles');
 
 router.get('/archives', function (req, res, next) {
-  // res.render('dashboard/archives');
+  let status = req.query.status || 'public';
   let categories = {};
   categoriesRef.once('value').then(function (snapshot) {
     categories = snapshot.val();
@@ -16,14 +16,17 @@ router.get('/archives', function (req, res, next) {
   }).then(function (snapshot) {
     let articles = [];
     snapshot.forEach(function (snapshotChild) {
-      articles.push(snapshotChild.val());
+      if (snapshotChild.val().status === status) {
+        articles.push(snapshotChild.val());
+      }
     });
     articles.reverse();
     res.render('dashboard/archives', {
       categories,
       articles,
       moment,
-      striptags
+      striptags,
+      status
     });
   });
 });
@@ -77,6 +80,14 @@ router.post('/article/update/:id', function (req, res) {
   });
 });
 
+// 刪除文章
+router.post('/article/delete/:id', function (req, res) {
+  const id = req.param('id');
+  articlesRef.child(id).remove().then();
+  res.send('文章已刪除');
+  res.end();
+});
+
 // 取得分類列表
 router.get('/categories', function (req, res, next) {
   const messages = req.flash('info');
@@ -110,7 +121,7 @@ router.post('/categories/create', function (req, res) {
 
 });
 
-// 刪除文章
+// 刪除分類
 router.post('/categories/delete/:id', function (req, res) {
   const id = req.param('id');
   categoriesRef.child(id).remove();
