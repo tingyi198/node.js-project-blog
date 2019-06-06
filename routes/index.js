@@ -3,6 +3,7 @@ const router = express.Router();
 const firebaseAdminDb = require('../connections/firebase-admin');
 const moment = require('moment');
 const striptags = require('striptags');
+const convertPagination = require('../modules/convertPagination');
 
 const categoriesRef = firebaseAdminDb.ref('categories');
 const articlesRef = firebaseAdminDb.ref('articles');
@@ -24,36 +25,14 @@ router.get('/', function (req, res, next) {
     articles.reverse();
 
     // 分頁
-    const totalResult = articles.length;
-    const perpage = 2;
-    const pageTotal = Math.ceil(totalResult / perpage);
-    if (currentPage > pageTotal) {
-      currentPage = pageTotal;
-    }
-
-    const minItem = (currentPage * perpage) - perpage + 1;
-    const maxItem = (currentPage * perpage);
-    const data = [];
-    articles.forEach(function (item, i) {
-      let itemNum = i + 1;
-      if (itemNum >= minItem && itemNum <= maxItem) {
-        data.push(item);
-      }
-    });
-    const page = {
-      pageTotal,
-      currentPage,
-      hasPre: currentPage > 1,
-      hasNext: currentPage < pageTotal
-    };
-    // 分頁結束
+    const data = convertPagination(articles, currentPage);
 
     res.render('index', {
-      articles: data,
+      articles: data.data,
       categories,
       striptags,
       moment,
-      page
+      page: data.page
     });
   });
 });
