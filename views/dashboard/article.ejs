@@ -5,10 +5,10 @@
 } %>
 
 <form
-  <% if (!article.id) { %>
-    action="/dashboard/article/create"
-  <% } else { %>
+  <% if (article.id) { %>
     action="/dashboard/article/update/<%- article.id %>"
+  <% } else { %>
+    action="/dashboard/article/create"
   <% } %>
 
   action="/dashboard/article/create"
