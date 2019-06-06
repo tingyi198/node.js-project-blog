@@ -18,6 +18,7 @@ router.get('/article/create', function (req, res, next) {
   });
 });
 
+// 取得單一文章
 router.get('/article/:id', function (req, res, next) {
   const id = req.param('id');
   let categories = {};
@@ -33,6 +34,7 @@ router.get('/article/:id', function (req, res, next) {
   });
 });
 
+// 新增文章
 router.post('/article/create', function (req, res) {
   const data = req.body;
   const articleRef = articlesRef.push();
@@ -45,6 +47,18 @@ router.post('/article/create', function (req, res) {
   });
 });
 
+// 修改文章
+router.post('/article/update/:id', function (req, res) {
+  const data = req.body;
+  const id = req.param('id');
+  const updateTime = Math.floor(Date.now() / 1000);
+  data.update_time = updateTime;
+  articlesRef.child(id).update(data).then(function () {
+    res.redirect(`/dashboard/article/${id}`);
+  });
+});
+
+// 取得分類列表
 router.get('/categories', function (req, res, next) {
   const messages = req.flash('info');
   categoriesRef.once('value').then(function (snapshot) {
@@ -77,6 +91,7 @@ router.post('/categories/create', function (req, res) {
 
 });
 
+// 刪除文章
 router.post('/categories/delete/:id', function (req, res) {
   const id = req.param('id');
   categoriesRef.child(id).remove();

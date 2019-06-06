@@ -5,6 +5,12 @@
 } %>
 
 <form
+  <% if (!article.id) { %>
+    action="/dashboard/article/create"
+  <% } else { %>
+    action="/dashboard/article/update/<%- article.id %>"
+  <% } %>
+
   action="/dashboard/article/create"
   method="POST"
   class="row justify-content-center">
