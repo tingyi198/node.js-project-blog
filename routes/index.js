@@ -9,7 +9,7 @@ const articlesRef = firebaseAdminDb.ref('articles');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-  let currentPage = req.query.page || 1;
+  let currentPage = Number.parseInt(req.query.page) || 1;
   let categories = {};
   categoriesRef.once('value').then(function (snapshot) {
     categories = snapshot.val();
